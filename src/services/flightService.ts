@@ -164,5 +164,28 @@ export const flightService = {
       console.error('FlightRadar1 playback verisi alınamadı:', error);
       return null;
     }
+  },
+
+  async getMostTrackedFlightsFromFlightradar243() {
+    const url = 'https://flightradar243.p.rapidapi.com/v1/flights/most-tracked';
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-host': 'flightradar243.p.rapidapi.com'
+      }
+    };
+
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`flightradar243 most-tracked API error: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('flightradar243 most-tracked verisi alınamadı:', error);
+      return null;
+    }
   }
 };
