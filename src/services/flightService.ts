@@ -1,4 +1,3 @@
-
 const AVIATIONSTACK_KEY = 'a1e63f696eae988382be2f90795c00c9';
 const RAPIDAPI_KEY = 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1';
 const APIMARKET_KEY = 'cma6gluj90008l804ikosp0yp';
@@ -135,6 +134,34 @@ export const flightService = {
       return await response.json();
     } catch (error) {
       console.error('Uçak detayları alınamadı:', error);
+      return null;
+    }
+  },
+
+  async getFlightPlaybackFromRadar1(flightId: string, timestamp: number) {
+    // API parametrelerini kontrol et
+    if (!flightId || !timestamp) {
+      throw new Error('Hem flightId hem timestamp belirtilmeli');
+    }
+
+    const url = `https://flight-radar1.p.rapidapi.com/flights/get-playback?flightId=${flightId}&timestamp=${timestamp}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1',
+        'x-rapidapi-host': 'flight-radar1.p.rapidapi.com'
+      }
+    };
+
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`FlightRadar1 Playback API error: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('FlightRadar1 playback verisi alınamadı:', error);
       return null;
     }
   }
