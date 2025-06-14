@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,15 +7,22 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { RefreshCw, Play, Pause } from 'lucide-react';
 
-const ControlPanel = ({ activeLayer }) => {
+interface ControlPanelProps {
+  activeLayers: string[];
+}
+
+const ControlPanel = ({ activeLayers }: ControlPanelProps) => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState([30]);
   const [isPlaying, setIsPlaying] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
+  // En üstteki seçili katmanı ana panel için aktif katman olarak kullanıyoruz
+  const activeLayer = activeLayers.length > 0 ? activeLayers[0] : null;
+
   useEffect(() => {
     let interval;
-    if (autoRefresh && isPlaying) {
+    if (activeLayer && autoRefresh && isPlaying) {
       interval = setInterval(() => {
         setLastUpdate(new Date());
         // Burada veri güncellemesi yapılacak
@@ -25,8 +33,10 @@ const ControlPanel = ({ activeLayer }) => {
   }, [autoRefresh, isPlaying, refreshInterval, activeLayer]);
 
   const handleManualRefresh = () => {
-    setLastUpdate(new Date());
-    console.log(`${activeLayer} verisi manuel olarak güncellendi`);
+    if (activeLayer) {
+      setLastUpdate(new Date());
+      console.log(`${activeLayer} verisi manuel olarak güncellendi`);
+    }
   };
 
   const getLayerInfo = () => {
@@ -84,14 +94,13 @@ const ControlPanel = ({ activeLayer }) => {
         <CardTitle className="flex items-center justify-between">
           <span>{layerInfo.title}</span>
           <Badge variant="outline" className="text-green-400 border-green-400">
-            Aktif
+            {activeLayer ? 'Aktif' : 'Pasif'}
           </Badge>
         </CardTitle>
         <p className="text-sm text-gray-300">{layerInfo.description}</p>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* İstatistikler */}
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-white/10 rounded-lg">
             <div className="text-2xl font-bold text-green-400">{layerInfo.stats.active}</div>
@@ -103,7 +112,6 @@ const ControlPanel = ({ activeLayer }) => {
           </div>
         </div>
 
-        {/* Kontroller */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm">Otomatik Güncelleme</span>
@@ -152,7 +160,6 @@ const ControlPanel = ({ activeLayer }) => {
           </div>
         </div>
 
-        {/* Son Güncelleme */}
         <div className="text-xs text-gray-400 text-center">
           Son güncelleme: {lastUpdate.toLocaleTimeString('tr-TR')}
         </div>

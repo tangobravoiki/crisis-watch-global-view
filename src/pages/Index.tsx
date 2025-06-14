@@ -12,13 +12,13 @@ import { useToast } from '@/hooks/use-toast';
 const Index = () => {
   const { toast } = useToast();
 
-  const [activeLayer, setActiveLayer] = useState('flights');
-  const [mapCenter, setMapCenter] = useState([35.2433, 38.9637]); // Türkiye merkezi
+  // Değişiklik burada: birden fazla katman seçilebilir!
+  const [activeLayers, setActiveLayers] = useState<string[]>(['flights']);
+  const [mapCenter, setMapCenter] = useState([35.2433, 38.9637]);
   const [emergencyMode, setEmergencyMode] = useState(false);
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
-    // Alert panel disabled: API ve mock verisi yasaklandığı için burası boş bırakıldı
     setAlerts([]);
   }, []);
 
@@ -51,15 +51,15 @@ const Index = () => {
       <div className="flex h-[calc(100vh-140px)]">
         {/* Left Sidebar - Controls */}
         <div className="w-80 bg-black/40 backdrop-blur border-r border-white/10 p-4 overflow-y-auto">
-          <LayerControls activeLayer={activeLayer} setActiveLayer={setActiveLayer} />
-          <ControlPanel activeLayer={activeLayer} />
+          <LayerControls activeLayers={activeLayers} setActiveLayers={setActiveLayers} />
+          <ControlPanel activeLayers={activeLayers} />
           <WeatherPanel />
         </div>
 
         {/* Main Map Area */}
         <div className="flex-1 relative bg-black/70">
           <Map 
-            activeLayer={activeLayer} 
+            activeLayer={activeLayers[0]} 
             center={mapCenter}
             emergencyMode={emergencyMode}
           />
