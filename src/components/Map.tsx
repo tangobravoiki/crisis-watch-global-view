@@ -54,7 +54,7 @@ const Map: React.FC<Props> = ({ news, loading }) => {
     news
       .filter((n) => n.latitude !== undefined && n.longitude !== undefined)
       .forEach((item) => {
-        const marker = new mapboxgl.Marker({ color: "#f43f5e" })
+        const marker = new mapboxgl.Marker({ color: "#dc2626" })
           .setLngLat([item.longitude!, item.latitude!])
           .setPopup(
             new mapboxgl.Popup({ offset: 16 })
