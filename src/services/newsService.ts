@@ -1,44 +1,47 @@
 
-const NEWS_API_KEY = 'ed5a64d631744bb693160fd70115c3b2';
 const THE_NEWS_API_KEY = '7QfFI2tpedijwyUwaxh6d8TsXQ1y3VFHftT1owKG';
 const RAPIDAPI_KEY = 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1';
 
 export const newsService = {
   async getBreakingNews() {
     try {
-      // NewsAPI.org kullanarak
+      // TheNewsAPI kullanarak (CORS sorunu yok)
       const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=tr&category=general&apiKey=${NEWS_API_KEY}&pageSize=20`
-      );
-
-      if (!response.ok) {
-        console.error('NewsAPI hatası:', response.status);
-        return this.getNewsFromTheNewsAPI();
-      }
-
-      const data = await response.json();
-      return this.parseNewsAPIData(data.articles || []);
-    } catch (error) {
-      console.error('NewsAPI hatası:', error);
-      return this.getNewsFromTheNewsAPI();
-    }
-  },
-
-  async getNewsFromTheNewsAPI() {
-    try {
-      const response = await fetch(
-        `https://api.thenewsapi.com/v1/news/top?api_token=${THE_NEWS_API_KEY}&locale=tr&limit=20`
+        `https://api.thenewsapi.com/v1/news/top?api_token=${THE_NEWS_API_KEY}&locale=tr&limit=10`
       );
 
       if (!response.ok) {
         console.error('TheNewsAPI hatası:', response.status);
-        return [];
+        return this.getNewsFromRapidAPI();
       }
 
       const data = await response.json();
       return this.parseTheNewsAPIData(data.data || []);
     } catch (error) {
       console.error('TheNewsAPI hatası:', error);
+      return this.getNewsFromRapidAPI();
+    }
+  },
+
+  async getNewsFromRapidAPI() {
+    try {
+      const response = await fetch(`https://news-api14.p.rapidapi.com/top-headlines?country=tr&language=tr&pageSize=10`, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'news-api14.p.rapidapi.com'
+        }
+      });
+
+      if (!response.ok) {
+        console.error('RapidAPI News hatası:', response.status);
+        return [];
+      }
+
+      const data = await response.json();
+      return this.parseRapidAPIData(data.articles || []);
+    } catch (error) {
+      console.error('RapidAPI News hatası:', error);
       return [];
     }
   },
@@ -47,7 +50,7 @@ export const newsService = {
     try {
       const keywordQuery = keywords.join(' OR ');
       const response = await fetch(
-        `https://newsapi.org/v2/everything?q=${encodeURIComponent(keywordQuery)}&language=tr&sortBy=publishedAt&apiKey=${NEWS_API_KEY}&pageSize=10`
+        `https://api.thenewsapi.com/v1/news/all?api_token=${THE_NEWS_API_KEY}&search=${encodeURIComponent(keywordQuery)}&language=tr&limit=10`
       );
 
       if (!response.ok) {
@@ -56,26 +59,11 @@ export const newsService = {
       }
 
       const data = await response.json();
-      return this.parseNewsAPIData(data.articles || []);
+      return this.parseTheNewsAPIData(data.data || []);
     } catch (error) {
       console.error('Kriz haberleri alınamadı:', error);
       return [];
     }
-  },
-
-  parseNewsAPIData(articles: any[]) {
-    return articles.map((article: any) => ({
-      id: article.url,
-      title: article.title,
-      description: article.description,
-      content: article.content,
-      url: article.url,
-      image: article.urlToImage,
-      publishedAt: article.publishedAt,
-      source: article.source?.name || 'Bilinmeyen Kaynak',
-      category: 'general',
-      severity: this.getNewsSeverity(article.title + ' ' + article.description)
-    })).filter((news: any) => news.title && news.description);
   },
 
   parseTheNewsAPIData(articles: any[]) {
@@ -93,6 +81,21 @@ export const newsService = {
     })).filter((news: any) => news.title && news.description);
   },
 
+  parseRapidAPIData(articles: any[]) {
+    return articles.map((article: any) => ({
+      id: article.url,
+      title: article.title,
+      description: article.description,
+      content: article.content,
+      url: article.url,
+      image: article.urlToImage,
+      publishedAt: article.publishedAt,
+      source: article.source?.name || 'Bilinmeyen Kaynak',
+      category: 'general',
+      severity: this.getNewsSeverity(article.title + ' ' + article.description)
+    })).filter((news: any) => news.title && news.description);
+  },
+
   getNewsSeverity(text: string) {
     const highSeverityWords = ['kriz', 'acil', 'tehlike', 'yangın', 'deprem', 'sel', 'fırtına', 'kaza'];
     const mediumSeverityWords = ['uyarı', 'dikkat', 'yoğunluk', 'gecikme', 'sorun'];
@@ -106,11 +109,11 @@ export const newsService = {
 
   async getNewsFromGoogle(query: string) {
     try {
-      const response = await fetch(`https://google-news1.p.rapidapi.com/search?q=${encodeURIComponent(query)}&country=TR&lang=tr`, {
+      const response = await fetch(`https://google-news13.p.rapidapi.com/search?keyword=${encodeURIComponent(query)}&lr=lang_tr`, {
         method: 'GET',
         headers: {
           'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'google-news1.p.rapidapi.com'
+          'X-RapidAPI-Host': 'google-news13.p.rapidapi.com'
         }
       });
 
@@ -120,7 +123,7 @@ export const newsService = {
       }
 
       const data = await response.json();
-      return data.articles || [];
+      return data.items || [];
     } catch (error) {
       console.error('Google News hatası:', error);
       return [];

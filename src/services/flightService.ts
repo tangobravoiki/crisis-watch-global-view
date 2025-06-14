@@ -5,31 +5,32 @@ const AVIATIONSTACK_KEY = 'a1e63f696eae988382be2f90795c00c9';
 export const flightService = {
   async getNearbyFlights(lat: number, lon: number, radius: number = 100) {
     try {
-      // FlightRadar24 API kullanarak
-      const response = await fetch(`https://flightradar24-api.p.rapidapi.com/flights/list-in-boundary?bl_lat=${lat-1}&bl_lng=${lon-1}&tr_lat=${lat+1}&tr_lng=${lon+1}&limit=50`, {
+      // ADS-B Exchange API kullanarak (daha güvenilir)
+      const response = await fetch(`https://adsbexchange-com1.p.rapidapi.com/v2/lat/${lat}/lon/${lon}/dist/25/`, {
         method: 'GET',
         headers: {
           'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'flightradar24-api.p.rapidapi.com'
+          'X-RapidAPI-Host': 'adsbexchange-com1.p.rapidapi.com'
         }
       });
 
       if (!response.ok) {
-        console.error('FlightRadar24 API hatası:', response.status);
-        return this.getFlightsFromAviationStack(lat, lon);
+        console.error('ADS-B Exchange API hatası:', response.status);
+        return this.getFlightsFromAviationStack();
       }
 
       const data = await response.json();
-      return this.parseFlightData(data);
+      return this.parseADSBData(data);
     } catch (error) {
-      console.error('FlightRadar24 hatası:', error);
-      return this.getFlightsFromAviationStack(lat, lon);
+      console.error('ADS-B Exchange hatası:', error);
+      return this.getFlightsFromAviationStack();
     }
   },
 
-  async getFlightsFromAviationStack(lat: number, lon: number) {
+  async getFlightsFromAviationStack() {
     try {
-      const response = await fetch(`http://api.aviationstack.com/v1/flights?access_key=${AVIATIONSTACK_KEY}&limit=50`, {
+      // HTTPS kullanarak CORS sorununu çöz
+      const response = await fetch(`https://api.aviationstack.com/v1/flights?access_key=${AVIATIONSTACK_KEY}&limit=20`, {
         method: 'GET'
       });
 
@@ -46,18 +47,18 @@ export const flightService = {
     }
   },
 
-  parseFlightData(data: any) {
-    if (!data || !data.aircraft) return [];
+  parseADSBData(data: any) {
+    if (!data || !data.ac) return [];
     
-    return data.aircraft.map((flight: any) => ({
-      icao24: flight[0],
-      callsign: flight[16] || 'Unknown',
-      latitude: flight[1],
-      longitude: flight[2],
-      altitude: flight[4],
-      velocity: flight[5],
-      heading: flight[3],
-      registration: flight[9]
+    return data.ac.map((flight: any) => ({
+      icao24: flight.hex || Math.random().toString(36).substr(2, 9),
+      callsign: flight.flight || 'Unknown',
+      latitude: flight.lat,
+      longitude: flight.lon,
+      altitude: flight.alt_baro || 0,
+      velocity: flight.gs || 0,
+      heading: flight.track || 0,
+      registration: flight.r || 'Unknown'
     })).filter((flight: any) => flight.latitude && flight.longitude);
   },
 
@@ -76,11 +77,11 @@ export const flightService = {
 
   async getFlightDetails(flightId: string) {
     try {
-      const response = await fetch(`https://flightradar24-api.p.rapidapi.com/flights/detail?flight=${flightId}`, {
+      const response = await fetch(`https://adsbexchange-com1.p.rapidapi.com/v2/icao/${flightId}/`, {
         method: 'GET',
         headers: {
           'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'flightradar24-api.p.rapidapi.com'
+          'X-RapidAPI-Host': 'adsbexchange-com1.p.rapidapi.com'
         }
       });
 

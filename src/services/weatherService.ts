@@ -42,17 +42,30 @@ export const weatherService = {
 
   async getWeatherAlerts(lat: number, lon: number) {
     try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_KEY}&units=metric&lang=tr&exclude=minutely,hourly,daily`
-      );
+      // Normal weather API'sinden uyarı bilgisi çek
+      const weather = await this.getCurrentWeather(lat, lon);
+      if (!weather) return [];
 
-      if (!response.ok) {
-        console.error('Weather alerts API hatası:', response.status);
-        return [];
+      const alerts = [];
+      
+      // Hava durumu koşullarına göre uyarı oluştur
+      if (weather.wind?.speed > 15) {
+        alerts.push({
+          event: 'Şiddetli Rüzgar',
+          description: `Rüzgar hızı ${weather.wind.speed} m/s`,
+          severity: 'high'
+        });
+      }
+      
+      if (weather.weather[0].main === 'Thunderstorm') {
+        alerts.push({
+          event: 'Fırtına Uyarısı',
+          description: weather.weather[0].description,
+          severity: 'high'
+        });
       }
 
-      const data = await response.json();
-      return data.alerts || [];
+      return alerts;
     } catch (error) {
       console.error('Hava durumu uyarıları alınamadı:', error);
       return [];
