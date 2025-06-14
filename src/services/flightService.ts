@@ -15,15 +15,14 @@ export const flightService = {
       });
 
       if (!response.ok) {
-        throw new Error('Flight data fetch failed');
+        console.error('FlightRadar24 API hatası:', response.status);
+        return this.getFlightsFromAviationStack(lat, lon);
       }
 
       const data = await response.json();
-      
-      // Veriyi standart formata dönüştür
       return this.parseFlightData(data);
     } catch (error) {
-      console.log('FlightRadar24 hatası, AviationStack deneniyor...', error);
+      console.error('FlightRadar24 hatası:', error);
       return this.getFlightsFromAviationStack(lat, lon);
     }
   },
@@ -35,14 +34,15 @@ export const flightService = {
       });
 
       if (!response.ok) {
-        throw new Error('AviationStack data fetch failed');
+        console.error('AviationStack API hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();
       return this.parseAviationStackData(data.data || []);
     } catch (error) {
       console.error('AviationStack hatası:', error);
-      return this.getMockFlightData(lat, lon);
+      return [];
     }
   },
 
@@ -74,24 +74,6 @@ export const flightService = {
     })).filter((flight: any) => flight.latitude && flight.longitude);
   },
 
-  getMockFlightData(lat: number, lon: number) {
-    // Gerçek API'ler çalışmadığında mock data
-    const mockFlights = [];
-    for (let i = 0; i < 10; i++) {
-      mockFlights.push({
-        icao24: `TK${1000 + i}`,
-        callsign: `THY${100 + i}`,
-        latitude: lat + (Math.random() - 0.5) * 2,
-        longitude: lon + (Math.random() - 0.5) * 2,
-        altitude: Math.floor(Math.random() * 12000) + 3000,
-        velocity: Math.floor(Math.random() * 200) + 150,
-        heading: Math.floor(Math.random() * 360),
-        registration: `TC-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
-      });
-    }
-    return mockFlights;
-  },
-
   async getFlightDetails(flightId: string) {
     try {
       const response = await fetch(`https://flightradar24-api.p.rapidapi.com/flights/detail?flight=${flightId}`, {
@@ -103,7 +85,8 @@ export const flightService = {
       });
 
       if (!response.ok) {
-        throw new Error('Flight details fetch failed');
+        console.error('Flight details API hatası:', response.status);
+        return null;
       }
 
       return await response.json();

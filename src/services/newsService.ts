@@ -12,13 +12,14 @@ export const newsService = {
       );
 
       if (!response.ok) {
-        throw new Error('News data fetch failed');
+        console.error('NewsAPI hatası:', response.status);
+        return this.getNewsFromTheNewsAPI();
       }
 
       const data = await response.json();
       return this.parseNewsAPIData(data.articles || []);
     } catch (error) {
-      console.log('NewsAPI hatası, TheNewsAPI deneniyor...', error);
+      console.error('NewsAPI hatası:', error);
       return this.getNewsFromTheNewsAPI();
     }
   },
@@ -30,14 +31,15 @@ export const newsService = {
       );
 
       if (!response.ok) {
-        throw new Error('TheNewsAPI data fetch failed');
+        console.error('TheNewsAPI hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();
       return this.parseTheNewsAPIData(data.data || []);
     } catch (error) {
-      console.log('TheNewsAPI hatası, mock data kullanılıyor...', error);
-      return this.getMockNewsData();
+      console.error('TheNewsAPI hatası:', error);
+      return [];
     }
   },
 
@@ -49,14 +51,15 @@ export const newsService = {
       );
 
       if (!response.ok) {
-        throw new Error('Crisis news fetch failed');
+        console.error('Crisis news API hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();
       return this.parseNewsAPIData(data.articles || []);
     } catch (error) {
       console.error('Kriz haberleri alınamadı:', error);
-      return this.getMockCrisisNews();
+      return [];
     }
   },
 
@@ -90,65 +93,6 @@ export const newsService = {
     })).filter((news: any) => news.title && news.description);
   },
 
-  getMockNewsData() {
-    const mockNews = [
-      {
-        id: '1',
-        title: 'İstanbul Boğazı\'nda Trafik Yoğunluğu',
-        description: 'İstanbul Boğazı\'nda gemi trafiği yoğunlaştı, geçiş süreleri uzadı.',
-        content: 'İstanbul Boğazı\'nda artan gemi trafiği nedeniyle geçiş süreleri normalin üzerinde seyrediyor.',
-        url: '#',
-        image: null,
-        publishedAt: new Date().toISOString(),
-        source: 'Denizcilik Haber',
-        category: 'transportation',
-        severity: 'medium'
-      },
-      {
-        id: '2',
-        title: 'Ege Denizi\'nde Fırtına Uyarısı',
-        description: 'Meteoroloji Genel Müdürlüğü Ege Denizi için fırtına uyarısı yayınladı.',
-        content: 'Ege Denizi\'nde beklenen kuvvetli rüzgar nedeniyle denizcilik faaliyetlerinde dikkat edilmesi gerekiyor.',
-        url: '#',
-        image: null,
-        publishedAt: new Date(Date.now() - 3600000).toISOString(),
-        source: 'Meteoroloji',
-        category: 'weather',
-        severity: 'high'
-      },
-      {
-        id: '3',
-        title: 'Havayolu Trafiğinde Normalleşme',
-        description: 'Pandemi sonrası havayolu trafiği normale döndü.',
-        content: 'Havayolu şirketleri normalleşen trafik ile beraber sefer sayılarını artırıyor.',
-        url: '#',
-        image: null,
-        publishedAt: new Date(Date.now() - 7200000).toISOString(),
-        source: 'Havacılık Dünyası',
-        category: 'aviation',
-        severity: 'low'
-      }
-    ];
-    return mockNews;
-  },
-
-  getMockCrisisNews() {
-    return [
-      {
-        id: 'crisis1',
-        title: 'Karayolu Trafiğinde Yoğunluk',
-        description: 'Ana arterlerde trafik yoğunluğu devam ediyor.',
-        content: 'Şehir içi trafikte normalin üzerinde yoğunluk gözleniyor.',
-        url: '#',
-        image: null,
-        publishedAt: new Date().toISOString(),
-        source: 'Trafik Merkezi',
-        category: 'traffic',
-        severity: 'medium'
-      }
-    ];
-  },
-
   getNewsSeverity(text: string) {
     const highSeverityWords = ['kriz', 'acil', 'tehlike', 'yangın', 'deprem', 'sel', 'fırtına', 'kaza'];
     const mediumSeverityWords = ['uyarı', 'dikkat', 'yoğunluk', 'gecikme', 'sorun'];
@@ -171,7 +115,8 @@ export const newsService = {
       });
 
       if (!response.ok) {
-        throw new Error('Google News fetch failed');
+        console.error('Google News API hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();

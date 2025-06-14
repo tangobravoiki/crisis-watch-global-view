@@ -15,13 +15,14 @@ export const shipService = {
       });
 
       if (!response.ok) {
-        throw new Error('Ship data fetch failed');
+        console.error('VesselFinder API hatası:', response.status);
+        return this.getShipsFromAISStream(lat, lon);
       }
 
       const data = await response.json();
       return this.parseShipData(data);
     } catch (error) {
-      console.log('VesselFinder hatası, AISStream deneniyor...', error);
+      console.error('VesselFinder hatası:', error);
       return this.getShipsFromAISStream(lat, lon);
     }
   },
@@ -34,14 +35,15 @@ export const shipService = {
       });
 
       if (!response.ok) {
-        throw new Error('AISStream data fetch failed');
+        console.error('AISStream API hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();
       return this.parseAISStreamData(data);
     } catch (error) {
       console.error('AISStream hatası:', error);
-      return this.getMockShipData(lat, lon);
+      return [];
     }
   },
 
@@ -75,27 +77,6 @@ export const shipService = {
     })).filter((ship: any) => ship.latitude && ship.longitude);
   },
 
-  getMockShipData(lat: number, lon: number) {
-    // Gerçek API'ler çalışmadığında mock data
-    const mockShips = [];
-    const shipTypes = ['Cargo', 'Tanker', 'Container', 'Passenger', 'Fishing', 'Military'];
-    const flags = ['Turkey', 'Greece', 'Cyprus', 'Malta', 'Panama'];
-    
-    for (let i = 0; i < 8; i++) {
-      mockShips.push({
-        mmsi: `${200000000 + Math.floor(Math.random() * 99999999)}`,
-        name: `MV ${['BOSPHORUS', 'AEGEAN', 'MEDITERRANEAN', 'BLACK SEA', 'MARMARA'][Math.floor(Math.random() * 5)]} ${i + 1}`,
-        latitude: lat + (Math.random() - 0.5) * 2,
-        longitude: lon + (Math.random() - 0.5) * 2,
-        speed: Math.floor(Math.random() * 20) + 5,
-        course: Math.floor(Math.random() * 360),
-        shipType: shipTypes[Math.floor(Math.random() * shipTypes.length)],
-        flag: flags[Math.floor(Math.random() * flags.length)]
-      });
-    }
-    return mockShips;
-  },
-
   getShipTypeFromCode(code: number) {
     const shipTypes = {
       30: 'Fishing',
@@ -124,7 +105,8 @@ export const shipService = {
       });
 
       if (!response.ok) {
-        throw new Error('Ship details fetch failed');
+        console.error('Ship details API hatası:', response.status);
+        return null;
       }
 
       return await response.json();

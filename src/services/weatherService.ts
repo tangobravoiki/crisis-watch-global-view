@@ -9,14 +9,15 @@ export const weatherService = {
       );
 
       if (!response.ok) {
-        throw new Error('Weather data fetch failed');
+        console.error('OpenWeatherMap API hatası:', response.status);
+        return null;
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
       console.error('Hava durumu verisi alınamadı:', error);
-      return this.getMockWeatherData(lat, lon);
+      return null;
     }
   },
 
@@ -27,7 +28,8 @@ export const weatherService = {
       );
 
       if (!response.ok) {
-        throw new Error('Weather forecast fetch failed');
+        console.error('Weather forecast API hatası:', response.status);
+        return null;
       }
 
       const data = await response.json();
@@ -45,7 +47,8 @@ export const weatherService = {
       );
 
       if (!response.ok) {
-        throw new Error('Weather alerts fetch failed');
+        console.error('Weather alerts API hatası:', response.status);
+        return [];
       }
 
       const data = await response.json();
@@ -54,34 +57,6 @@ export const weatherService = {
       console.error('Hava durumu uyarıları alınamadı:', error);
       return [];
     }
-  },
-
-  getMockWeatherData(lat: number, lon: number) {
-    return {
-      coord: { lon: lon, lat: lat },
-      weather: [
-        {
-          id: 800,
-          main: "Clear",
-          description: "açık hava",
-          icon: "01d"
-        }
-      ],
-      main: {
-        temp: 15 + Math.random() * 20,
-        feels_like: 15 + Math.random() * 20,
-        temp_min: 10 + Math.random() * 15,
-        temp_max: 20 + Math.random() * 15,
-        pressure: 1013 + Math.random() * 20,
-        humidity: 40 + Math.random() * 40
-      },
-      wind: {
-        speed: Math.random() * 10,
-        deg: Math.random() * 360
-      },
-      visibility: 10000,
-      name: "Konum"
-    };
   },
 
   getWeatherIcon(iconCode: string) {
