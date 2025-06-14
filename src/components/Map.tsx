@@ -13,6 +13,7 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
   const [ships, setShips] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [flightError, setFlightError] = useState(false);
   const updateInterval = useRef(null);
 
   useEffect(() => {
@@ -86,13 +87,21 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
 
   const loadLayerData = async () => {
     if (loading) return;
-    
+
     setLoading(true);
+    setFlightError(false);
     try {
       switch (activeLayer) {
         case 'flights':
           const flightData = await flightService.getNearbyFlights(center[1], center[0], 100);
+          if (!flightData || flightData.length === 0) {
+            setFlights([]);
+            setFlightError(true);
+            clearAllLayers();
+            return;
+          }
           setFlights(flightData);
+          setFlightError(false);
           displayFlights(flightData);
           break;
         case 'ships':
@@ -113,6 +122,11 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
       }
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
+      if (activeLayer === 'flights') {
+        setFlightError(true);
+        setFlights([]);
+        clearAllLayers();
+      }
     } finally {
       setLoading(false);
     }
@@ -120,9 +134,8 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
 
   const displayFlights = (flightData) => {
     clearAllLayers();
-    
+
     if (!flightData || flightData.length === 0) {
-      console.log('Gösterilecek uçak verisi bulunamadı');
       return;
     }
 
@@ -401,7 +414,10 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
         <p className="text-sm">
           Aktif Katman: <span className="font-bold capitalize">{activeLayer}</span>
         </p>
-        {activeLayer === 'flights' && <p className="text-xs">{flights.length} uçak görüntüleniyor</p>}
+        {activeLayer === 'flights' && flightError && (
+          <p className="text-xs text-red-400 mt-1">Uçuş verisi alınamadı.</p>
+        )}
+        {activeLayer === 'flights' && !flightError && <p className="text-xs">{flights.length} uçak görüntüleniyor</p>}
         {activeLayer === 'ships' && <p className="text-xs">{ships.length} gemi görüntüleniyor</p>}
         {activeLayer === 'weather' && weatherData && <p className="text-xs">Hava durumu: {Math.round(weatherData.main?.temp)}°C</p>}
         {activeLayer === 'traffic' && <p className="text-xs">Trafik durumu görüntüleniyor</p>}

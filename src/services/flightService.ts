@@ -5,8 +5,8 @@ const APIMARKET_KEY = 'cma6gluj90008l804ikosp0yp';
 export const flightService = {
   async getNearbyFlights(lat: number, lon: number, radius: number = 100) {
     console.log('Uçak verisi alınıyor...', { lat, lon, radius });
-    
-    // First try AviationStack (most reliable)
+
+    // Önce AviationStack
     try {
       const flights = await this.getFlightsFromAviationStack();
       if (flights && flights.length > 0) {
@@ -17,7 +17,7 @@ export const flightService = {
       console.error('AviationStack hatası:', error);
     }
 
-    // Fallback to FlightRadar24
+    // Yedek: FlightRadar24
     try {
       const flights = await this.getFlightsFromFlightRadar(lat, lon);
       if (flights && flights.length > 0) {
@@ -28,9 +28,9 @@ export const flightService = {
       console.error('FlightRadar24 hatası:', error);
     }
 
-    // Final fallback - return mock data
-    console.log('Mock uçak verisi kullanılıyor');
-    return this.getMockFlights(lat, lon);
+    // Mock veri ASLA kullanılmasın
+    console.error("Uçuş verisi alınamadı. Mock veri gösterilmeyecek.");
+    return [];
   },
 
   async getFlightsFromAviationStack() {
