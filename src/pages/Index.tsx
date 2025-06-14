@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Map from '@/components/Map';
 import ControlPanel from '@/components/ControlPanel';
@@ -150,7 +149,7 @@ const ApiTestPanels = () => {
   const [marineTrafficResult, setMarineTrafficResult] = useState<string>('');
   const [webHeadersResult, setWebHeadersResult] = useState<string>('');
 
-  // API Fonksiyonları burada tanımlı, böylece toast ve setX erişilebilir
+  // Vessel Photo API
   const vesselPhotoAPI = async () => {
     const url = 'https://vessel-data.p.rapidapi.com/get_vessel_photo/%7Bshipid%7D';
     const options = {
@@ -181,6 +180,7 @@ const ApiTestPanels = () => {
     }
   };
 
+  // MarineTraffic API
   const marineTrafficAPI = async () => {
     const url = 'https://marinetraffic1.p.rapidapi.com/';
     const options = {
@@ -211,6 +211,7 @@ const ApiTestPanels = () => {
     }
   };
 
+  // Scan Web Headers API
   const scanWebHeadersAPI = async () => {
     const url = 'https://scan-web-heades-api.p.rapidapi.com/ScanHeaders?domain=www.google.com';
     const options = {
