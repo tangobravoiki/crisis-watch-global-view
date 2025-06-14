@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Map from '@/components/Map';
 import ControlPanel from '@/components/ControlPanel';
@@ -45,7 +44,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Header */}
-      <div className="bg-black/30 backdrop-blur-sm border-b border-white/10 p-4">
+      <div className="bg-black/60 backdrop-blur border-b border-white/10 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
@@ -54,17 +53,16 @@ const Index = () => {
               </div>
               <h1 className="text-2xl font-bold text-white">Kriz Takip Merkezi</h1>
             </div>
-            <Badge variant="outline" className="text-green-400 border-green-400">
+            <Badge variant="outline" className="text-green-400 border-green-400 bg-black/70">
               Canlı
             </Badge>
           </div>
-          
           <div className="flex items-center space-x-2">
             <Button
               variant={emergencyMode ? "destructive" : "outline"}
               size="sm"
               onClick={() => setEmergencyMode(!emergencyMode)}
-              className="text-white border-white/20"
+              className={`border-white/20 ${emergencyMode ? "text-white" : "text-white bg-black/60 hover:bg-black/80"}`}
             >
               {emergencyMode ? 'Acil Durum AÇIK' : 'Acil Durum KAPALI'}
             </Button>
@@ -74,10 +72,10 @@ const Index = () => {
 
       {/* Alert Panel */}
       {alerts.length > 0 && (
-        <div className="bg-black/20 backdrop-blur-sm p-4 border-b border-white/10">
+        <div className="bg-black/40 backdrop-blur-sm p-4 border-b border-white/10">
           <div className="flex flex-wrap gap-2">
             {alerts.map((alert) => (
-              <div key={alert.id} className={`px-3 py-1 rounded-full text-xs font-medium border ${getSeverityColor(alert.severity)}`}>
+              <div key={alert.id} className={`px-3 py-1 rounded-full text-xs font-medium border ${getSeverityColor(alert.severity)} bg-black/60`}>
                 {alert.message}
               </div>
             ))}
@@ -87,9 +85,9 @@ const Index = () => {
 
       <div className="flex h-[calc(100vh-140px)]">
         {/* Left Sidebar - Controls */}
-        <div className="w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 p-4 overflow-y-auto">
+        <div className="w-80 bg-black/40 backdrop-blur border-r border-white/10 p-4 overflow-y-auto">
           {/* Layer Controls */}
-          <Card className="mb-4 bg-black/30 border-white/20">
+          <Card className="mb-4 bg-black/60 border-white/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-white text-lg">Katman Kontrolü</CardTitle>
             </CardHeader>
@@ -123,7 +121,7 @@ const Index = () => {
         </div>
 
         {/* Main Map Area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-black/70">
           <Map 
             activeLayer={activeLayer} 
             center={mapCenter}
@@ -132,7 +130,7 @@ const Index = () => {
         </div>
 
         {/* Right Sidebar - News and Info */}
-        <div className="w-80 bg-black/20 backdrop-blur-sm border-l border-white/10 p-4 overflow-y-auto">
+        <div className="w-80 bg-black/40 backdrop-blur border-l border-white/10 p-4 overflow-y-auto">
           <NewsPanel />
         </div>
       </div>

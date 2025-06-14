@@ -101,3 +101,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Koyu ve açık modda temel gövde kontrastını zorunlu kıldık. Eğer çok beyaz olursa, foreground koyu olacak.
+Ekstra olarak;
+// Gerekirse aşağı ekleyebilirsiniz:
+//
+// body {
+//   background: #111827 !important; // tailwind slate-900
+//   color: #fafafa !important;
+// }
+*/

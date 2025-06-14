@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,7 +66,7 @@ const NewsPanel = () => {
   const displayNews = activeTab === 'all' ? news : crisisNews;
 
   return (
-    <Card className="h-full bg-black/30 border-white/20 text-white">
+    <Card className="h-full bg-black/70 border-white/20 text-white">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span>Haber Akışı</span>
@@ -96,7 +95,7 @@ const NewsPanel = () => {
         <ScrollArea className="h-full px-4">
           {loading ? (
             <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
             </div>
           ) : (
             <div className="space-y-4 pb-4">
@@ -106,36 +105,32 @@ const NewsPanel = () => {
                   className="border-b border-white/10 pb-4 last:border-b-0"
                 >
                   <div className="flex items-start space-x-3">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${getSeverityColor(article.severity)}`}></div>
+                    <div className={`w-2 h-2 rounded-full mt-2 ${getSeverityColor(article.severity)}`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs text-black bg-white/80 border-gray-400">
                           {article.source}
                         </Badge>
                         {article.severity === 'high' && getSeverityIcon(article.severity)}
                       </div>
-                      
-                      <h3 className="font-medium text-sm leading-5 mb-2">
+                      <h3 className="font-medium text-sm leading-5 mb-2 text-white">
                         {article.title}
                       </h3>
-                      
                       {article.description && (
-                        <p className="text-xs text-gray-300 mb-2 line-clamp-2">
+                        <p className="text-xs text-gray-100 mb-2 line-clamp-2">
                           {article.description}
                         </p>
                       )}
-                      
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center text-xs text-gray-400">
+                        <div className="flex items-center text-xs text-gray-300">
                           <Clock className="w-3 h-3 mr-1" />
                           {formatTimeAgo(article.publishedAt)}
                         </div>
-                        
                         {article.url && article.url !== '#' && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 px-2 text-xs"
+                            className="h-6 px-2 text-xs text-white bg-black/40"
                             onClick={() => window.open(article.url, '_blank')}
                           >
                             <ExternalLink className="w-3 h-3" />
@@ -146,7 +141,6 @@ const NewsPanel = () => {
                   </div>
                 </div>
               ))}
-              
               {displayNews.length === 0 && (
                 <div className="text-center text-gray-400 py-8">
                   <p>Henüz haber bulunmuyor.</p>
@@ -160,7 +154,7 @@ const NewsPanel = () => {
           <Button
             variant="outline"
             size="sm"
-            className="w-full text-white border-white/20"
+            className="w-full text-white border-white/20 bg-black/60"
             onClick={loadNews}
             disabled={loading}
           >

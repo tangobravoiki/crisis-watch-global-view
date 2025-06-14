@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +55,7 @@ const WeatherPanel = () => {
 
   if (loading) {
     return (
-      <Card className="bg-black/30 border-white/20 text-white">
+      <Card className="bg-black/70 border-white/20 text-white">
         <CardHeader>
           <CardTitle>Hava Durumu</CardTitle>
         </CardHeader>
@@ -68,7 +67,7 @@ const WeatherPanel = () => {
   }
 
   return (
-    <Card className="bg-black/30 border-white/20 text-white">
+    <Card className="bg-black/70 border-white/20 text-white">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span>Hava Durumu</span>
@@ -87,7 +86,7 @@ const WeatherPanel = () => {
               key={location.name}
               variant={selectedLocation.name === location.name ? 'default' : 'ghost'}
               size="sm"
-              className="text-xs px-2 py-1"
+              className={`text-xs px-2 py-1 ${selectedLocation.name !== location.name ? "text-white bg-black/40" : ""}`}
               onClick={() => setSelectedLocation(location)}
             >
               {location.name}
@@ -108,13 +107,13 @@ const WeatherPanel = () => {
                   />
                 )}
               </div>
-              <div className="text-3xl font-bold mb-1">
+              <div className="text-3xl font-bold mb-1 text-black">
                 {Math.round(weather.main?.temp || 0)}°C
               </div>
-              <div className="text-sm text-gray-300 capitalize">
+              <div className="text-sm text-gray-800 capitalize">
                 {weather.weather?.[0]?.description || 'Bilgi yok'}
               </div>
-              <div className="text-xs text-gray-400 mt-1">
+              <div className="text-xs text-gray-700 mt-1">
                 Hissedilen: {Math.round(weather.main?.feels_like || 0)}°C
               </div>
             </div>
@@ -201,7 +200,7 @@ const WeatherPanel = () => {
         <Button
           variant="outline"
           size="sm"
-          className="w-full text-white border-white/20"
+          className="w-full text-white border-white/20 bg-black/60"
           onClick={loadWeatherData}
           disabled={loading}
         >

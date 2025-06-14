@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +73,7 @@ const ControlPanel = ({ activeLayer }) => {
   const layerInfo = getLayerInfo();
 
   return (
-    <Card className="bg-black/30 border-white/20 text-white">
+    <Card className="bg-black/70 border-white/20 text-white">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span>{layerInfo.title}</span>
@@ -129,7 +128,7 @@ const ControlPanel = ({ activeLayer }) => {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 text-white border-white/20"
+              className="flex-1 text-white border-white/20 bg-black/60"
               onClick={() => setIsPlaying(!isPlaying)}
             >
               {isPlaying ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
@@ -139,7 +138,7 @@ const ControlPanel = ({ activeLayer }) => {
             <Button
               variant="outline"
               size="sm"
-              className="text-white border-white/20"
+              className="text-white border-white/20 bg-black/60"
               onClick={handleManualRefresh}
             >
               <RefreshCw className="w-4 h-4" />
