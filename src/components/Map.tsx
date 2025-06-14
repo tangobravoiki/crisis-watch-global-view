@@ -1,13 +1,14 @@
 
 import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface NewsItem {
   id: string;
   title: string;
   description?: string;
   url?: string;
-  latitude?: number; // optional geo position
+  latitude?: number;
   longitude?: number;
   publishedAt?: string;
 }
@@ -17,6 +18,7 @@ interface Props {
   loading?: boolean;
 }
 
+// Önemli: Kendi Mapbox public token'ınızı kullanmalısınız!
 const MAPBOX_TOKEN = "pk.eyJ1IjoibXNlcm1hbiIsImEiOiJjbWF3bHRzcmswY3oxMmpzZDVsZHduMG9zIn0.ZKuqgdVvEK77nyQsatMT6g";
 
 const Map: React.FC<Props> = ({ news, loading }) => {
@@ -32,7 +34,7 @@ const Map: React.FC<Props> = ({ news, loading }) => {
       style: "mapbox://styles/mapbox/light-v11",
       center: [35, 39],
       zoom: 5,
-      attributionControl: false
+      attributionControl: false,
     });
 
     map.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), "top-right");
@@ -42,29 +44,29 @@ const Map: React.FC<Props> = ({ news, loading }) => {
     };
   }, []);
 
-  // Haber markerlarını haritaya ekle
   useEffect(() => {
     if (!map.current) return;
-    // Önce eski marker'ları temizle
-    const markers: mapboxgl.Marker[] = [];
 
+    // Mevcut tüm eski markerları kaldırmak için closure array.
+    let markers: mapboxgl.Marker[] = [];
+
+    // Sadece konumlu haberler marker olarak eklenir
     news
-      .filter(n => n.latitude && n.longitude)
+      .filter((n) => n.latitude !== undefined && n.longitude !== undefined)
       .forEach((item) => {
         const marker = new mapboxgl.Marker({ color: "#f43f5e" })
           .setLngLat([item.longitude!, item.latitude!])
           .setPopup(
             new mapboxgl.Popup({ offset: 16 })
-              .setHTML(
-                `<strong>${item.title}</strong><br/><span>${item.description || ""}</span>`
-              )
+              .setHTML(`<strong>${item.title}</strong><br/><span>${item.description || ""}</span>`)
           )
           .addTo(map.current!);
         markers.push(marker);
       });
 
+    // Temizleme: markerları kaldır.
     return () => {
-      markers.forEach(marker => marker.remove());
+      markers.forEach((m) => m.remove());
     };
   }, [news]);
 
