@@ -4,7 +4,7 @@ import Map from '@/components/Map';
 import ControlPanel from '@/components/ControlPanel';
 import NewsPanel from '@/components/NewsPanel';
 import WeatherPanel from '@/components/WeatherPanel';
-import { Plane, Ship, Cloud, News, MapPin } from 'lucide-react';
+import { Plane, Ship, Cloud, Newspaper, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ const Index = () => {
     { id: 'flights', name: 'Uçak Takibi', icon: Plane, color: 'bg-blue-500' },
     { id: 'ships', name: 'Gemi Takibi', icon: Ship, color: 'bg-cyan-500' },
     { id: 'weather', name: 'Hava Durumu', icon: Cloud, color: 'bg-green-500' },
-    { id: 'news', name: 'Haberler', icon: News, color: 'bg-red-500' },
+    { id: 'news', name: 'Haberler', icon: Newspaper, color: 'bg-red-500' },
     { id: 'traffic', name: 'Trafik', icon: MapPin, color: 'bg-orange-500' }
   ];
 

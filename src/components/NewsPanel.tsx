@@ -53,7 +53,7 @@ const NewsPanel = () => {
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 60) {
       return `${diffInMinutes}dk önce`;
