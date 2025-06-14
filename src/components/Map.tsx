@@ -1,10 +1,10 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { flightService } from '@/services/flightService';
 import { shipService } from '@/services/shipService';
 import { weatherService } from '@/services/weatherService';
+import { trafficService } from '@/services/trafficService';
 
 const Map = ({ activeLayer, center, emergencyMode }) => {
   const mapContainer = useRef(null);
@@ -12,11 +12,12 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
   const [flights, setFlights] = useState([]);
   const [ships, setShips] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const updateInterval = useRef(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Mapbox token
     mapboxgl.accessToken = 'pk.eyJ1IjoibXNlcm1hbiIsImEiOiJjbWF3bHRzcmswY3oxMmpzZDVsZHduMG9zIn0.ZKuqgdVvEK77nyQsatMT6g';
     
     map.current = new mapboxgl.Map({
@@ -49,15 +50,18 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
     );
 
     map.current.on('load', () => {
-      // Add emergency mode styling
       if (emergencyMode) {
         map.current.setPaintProperty('background', 'background-color', '#4a0e0e');
       }
 
       loadLayerData();
+      setupAutoRefresh();
     });
 
     return () => {
+      if (updateInterval.current) {
+        clearInterval(updateInterval.current);
+      }
       map.current?.remove();
     };
   }, []);
@@ -68,7 +72,22 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
     }
   }, [activeLayer]);
 
+  const setupAutoRefresh = () => {
+    // Auto-refresh data every 30 seconds
+    if (updateInterval.current) {
+      clearInterval(updateInterval.current);
+    }
+    
+    updateInterval.current = setInterval(() => {
+      console.log(`${activeLayer} verisi güncelleniyor...`);
+      loadLayerData();
+    }, 30000);
+  };
+
   const loadLayerData = async () => {
+    if (loading) return;
+    
+    setLoading(true);
     try {
       switch (activeLayer) {
         case 'flights':
@@ -87,20 +106,25 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
           displayWeather(weather);
           break;
         case 'traffic':
-          displayTrafficLayer();
+          await displayTrafficLayer();
           break;
         default:
           clearAllLayers();
       }
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const displayFlights = (flightData) => {
     clearAllLayers();
     
-    if (!flightData || flightData.length === 0) return;
+    if (!flightData || flightData.length === 0) {
+      console.log('Gösterilecek uçak verisi bulunamadı');
+      return;
+    }
 
     const features = flightData.map(flight => ({
       type: 'Feature',
@@ -128,43 +152,35 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
     // Flight icons
     map.current.addLayer({
       id: 'flights-layer',
+      type: 'circle',
+      source: 'flights',
+      paint: {
+        'circle-radius': 8,
+        'circle-color': '#00bfff',
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    map.current.addLayer({
+      id: 'flights-labels',
       type: 'symbol',
       source: 'flights',
       layout: {
-        'icon-image': 'airport',
-        'icon-size': 0.8,
-        'icon-rotate': ['get', 'heading'],
         'text-field': ['get', 'callsign'],
         'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-        'text-offset': [0, 1.5],
+        'text-offset': [0, 2],
         'text-anchor': 'top',
-        'text-size': 12
+        'text-size': 10
       },
       paint: {
-        'icon-color': '#00bfff',
         'text-color': '#ffffff',
         'text-halo-color': '#000000',
         'text-halo-width': 1
       }
     });
 
-    // Add flight paths
-    map.current.addLayer({
-      id: 'flight-paths',
-      type: 'line',
-      source: 'flights',
-      layout: {
-        'line-join': 'round',
-        'line-cap': 'round'
-      },
-      paint: {
-        'line-color': '#00bfff',
-        'line-width': 2,
-        'line-opacity': 0.6
-      }
-    });
-
-    // Click events for flight info
+    // Click events
     map.current.on('click', 'flights-layer', (e) => {
       const flight = e.features[0].properties;
       new mapboxgl.Popup()
@@ -174,7 +190,7 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
             <h3 class="font-bold text-blue-600">Uçak Bilgileri</h3>
             <p><strong>Çağrı Kodu:</strong> ${flight.callsign || 'Bilinmiyor'}</p>
             <p><strong>Yükseklik:</strong> ${flight.altitude || 0} m</p>
-            <p><strong>Hız:</strong> ${flight.velocity || 0} m/s</p>
+            <p><strong>Hız:</strong> ${flight.velocity || 0} km/h</p>
             <p><strong>Yön:</strong> ${flight.heading || 0}°</p>
           </div>
         `)
@@ -185,7 +201,10 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
   const displayShips = (shipData) => {
     clearAllLayers();
     
-    if (!shipData || shipData.length === 0) return;
+    if (!shipData || shipData.length === 0) {
+      console.log('Gösterilecek gemi verisi bulunamadı');
+      return;
+    }
 
     const features = shipData.map(ship => ({
       type: 'Feature',
@@ -240,7 +259,7 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
       }
     });
 
-    // Click events for ship info
+    // Click events
     map.current.on('click', 'ships-layer', (e) => {
       const ship = e.features[0].properties;
       new mapboxgl.Popup()
@@ -261,9 +280,11 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
   const displayWeather = (weather) => {
     clearAllLayers();
     
-    if (!weather) return;
+    if (!weather) {
+      console.log('Gösterilecek hava durumu verisi bulunamadı');
+      return;
+    }
 
-    // Weather overlay
     map.current.addSource('weather', {
       type: 'geojson',
       data: {
@@ -298,31 +319,37 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
     });
   };
 
-  const displayTrafficLayer = () => {
+  const displayTrafficLayer = async () => {
     clearAllLayers();
     
-    // TomTom Traffic Flow API kullanarak trafik katmanı
-    map.current.addSource('traffic', {
-      type: 'raster',
-      tiles: [
-        `https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.png?key=4aWbNX5XHYVrCjWnn1uDeXeCM9Q7hGG0`
-      ],
-      tileSize: 256
-    });
+    try {
+      // TomTom Traffic Flow tile layer
+      map.current.addSource('traffic', {
+        type: 'raster',
+        tiles: [
+          `https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.png?key=4aWbNX5XHYVrCjWnn1uDeXeCM9Q7hGG0`
+        ],
+        tileSize: 256
+      });
 
-    map.current.addLayer({
-      id: 'traffic-layer',
-      type: 'raster',
-      source: 'traffic',
-      paint: {
-        'raster-opacity': 0.7
-      }
-    });
+      map.current.addLayer({
+        id: 'traffic-layer',
+        type: 'raster',
+        source: 'traffic',
+        paint: {
+          'raster-opacity': 0.7
+        }
+      });
+
+      console.log('Trafik katmanı eklendi');
+    } catch (error) {
+      console.error('Trafik katmanı eklenemedi:', error);
+    }
   };
 
   const clearAllLayers = () => {
     const layersToRemove = [
-      'flights-layer', 'flight-paths', 'ships-layer', 'ships-labels', 
+      'flights-layer', 'flights-labels', 'ships-layer', 'ships-labels', 
       'weather-layer', 'traffic-layer'
     ];
     
@@ -361,6 +388,14 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
         </div>
       )}
       
+      {/* Loading indicator */}
+      {loading && (
+        <div className="absolute top-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          Yükleniyor...
+        </div>
+      )}
+      
       {/* Layer info */}
       <div className="absolute bottom-4 left-4 bg-black/70 text-white px-4 py-2 rounded-lg">
         <p className="text-sm">
@@ -368,6 +403,8 @@ const Map = ({ activeLayer, center, emergencyMode }) => {
         </p>
         {activeLayer === 'flights' && <p className="text-xs">{flights.length} uçak görüntüleniyor</p>}
         {activeLayer === 'ships' && <p className="text-xs">{ships.length} gemi görüntüleniyor</p>}
+        {activeLayer === 'weather' && weatherData && <p className="text-xs">Hava durumu: {Math.round(weatherData.main?.temp)}°C</p>}
+        {activeLayer === 'traffic' && <p className="text-xs">Trafik durumu görüntüleniyor</p>}
       </div>
     </div>
   );
