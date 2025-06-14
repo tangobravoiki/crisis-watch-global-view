@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Plane, Ship, Cloud, Newspaper, MapPin } from 'lucide-react';
+import { Plane, Ship, Cloud, Newspaper, MapPin, Anchor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -13,6 +13,7 @@ const LayerControls = ({ activeLayer, setActiveLayer }: LayerControlsProps) => {
   const layers = [
     { id: 'flights', name: 'Uçak Takibi', icon: Plane, color: 'bg-blue-500' },
     { id: 'ships', name: 'Gemi Takibi', icon: Ship, color: 'bg-cyan-500' },
+    { id: 'vessel-control', name: 'Gemi Kontrolü', icon: Anchor, color: 'bg-purple-500' },
     { id: 'weather', name: 'Hava Durumu', icon: Cloud, color: 'bg-green-500' },
     { id: 'news', name: 'Haberler', icon: Newspaper, color: 'bg-red-500' },
     { id: 'traffic', name: 'Trafik', icon: MapPin, color: 'bg-orange-500' }

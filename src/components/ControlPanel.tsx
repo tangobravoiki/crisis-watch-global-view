@@ -43,6 +43,12 @@ const ControlPanel = ({ activeLayer }) => {
           description: 'Deniz trafiği ve gemi pozisyonları',
           stats: { active: 89, total: 320 }
         };
+      case 'vessel-control':
+        return {
+          title: 'Gemi Kontrolü',
+          description: 'Gemi operasyon kontrolü ve yönetimi',
+          stats: { active: 15, total: 50 }
+        };
       case 'weather':
         return {
           title: 'Hava Durumu',
@@ -170,6 +176,17 @@ const ControlPanel = ({ activeLayer }) => {
               <Badge variant="secondary" className="cursor-pointer">Kargo</Badge>
               <Badge variant="outline" className="cursor-pointer">Tanker</Badge>
               <Badge variant="outline" className="cursor-pointer">Yolcu</Badge>
+            </div>
+          </div>
+        )}
+
+        {activeLayer === 'vessel-control' && (
+          <div className="space-y-2 pt-2 border-t border-white/20">
+            <h4 className="text-sm font-medium">Kontrol Seçenekleri</h4>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="cursor-pointer">Operasyonel</Badge>
+              <Badge variant="outline" className="cursor-pointer">Bakım</Badge>
+              <Badge variant="outline" className="cursor-pointer">Acil</Badge>
             </div>
           </div>
         )}
