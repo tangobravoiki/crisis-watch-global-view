@@ -8,6 +8,148 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
+const vesselPhotoAPI = async () => {
+  const url = 'https://vessel-data.p.rapidapi.com/get_vessel_photo/%7Bshipid%7D';
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1',
+      'x-rapidapi-host': 'vessel-data.p.rapidapi.com'
+    }
+  };
+  try {
+    const response = await fetch(url, options);
+    return await response.text();
+  } catch (error) {
+    return JSON.stringify(error, null, 2);
+  }
+};
+
+const marineTrafficAPI = async () => {
+  const url = 'https://marinetraffic1.p.rapidapi.com/';
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1',
+      'x-rapidapi-host': 'marinetraffic1.p.rapidapi.com'
+    }
+  };
+  try {
+    const response = await fetch(url, options);
+    return await response.text();
+  } catch (error) {
+    return JSON.stringify(error, null, 2);
+  }
+};
+
+const scanWebHeadersAPI = async () => {
+  const url =
+    'https://scan-web-heades-api.p.rapidapi.com/ScanHeaders?domain=www.google.com';
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': 'e959f7813dmshf6c015e10f9d344p122dd0jsn8535aadbefe1',
+      'x-rapidapi-host': 'scan-web-heades-api.p.rapidapi.com'
+    }
+  };
+  try {
+    const response = await fetch(url, options);
+    return await response.text();
+  } catch (error) {
+    return JSON.stringify(error, null, 2);
+  }
+};
+
+const ApiTestPanels = () => {
+  const [vesselPhotoResult, setVesselPhotoResult] = useState<string>('');
+  const [marineTrafficResult, setMarineTrafficResult] = useState<string>('');
+  const [webHeadersResult, setWebHeadersResult] = useState<string>('');
+  const [loading, setLoading] = useState<string>('');
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+      {/* Vessel Photo API */}
+      <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col space-y-2">
+        <h2 className="font-bold text-lg text-white mb-2">Vessel Data API</h2>
+        <p className="text-gray-300 text-sm mb-2">
+          Gemi fotoğrafı API örneği (herhangi bir yanıt döndürür, shipid parametresi {`{shipid}`} ile test edilir).
+        </p>
+        <Button
+          variant="outline"
+          className="mb-2 text-white border-white/30"
+          onClick={async () => {
+            setLoading("vessel");
+            setVesselPhotoResult('');
+            const result = await vesselPhotoAPI();
+            setLoading('');
+            setVesselPhotoResult(result);
+          }}
+          disabled={loading === "vessel"}
+        >
+          {loading === "vessel" ? 'Yükleniyor...' : 'Çalıştır'}
+        </Button>
+        {vesselPhotoResult && (
+          <pre className="bg-black/30 text-xs rounded p-2 overflow-auto text-gray-100 whitespace-pre-wrap max-h-48">
+            {vesselPhotoResult}
+          </pre>
+        )}
+      </div>
+      {/* MarineTraffic API */}
+      <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col space-y-2">
+        <h2 className="font-bold text-lg text-white mb-2">Marine Traffic API</h2>
+        <p className="text-gray-300 text-sm mb-2">
+          MarineTraffic test API çağrısı (döküman gerektiriyor olabilir, örnek endpoint root).
+        </p>
+        <Button
+          variant="outline"
+          className="mb-2 text-white border-white/30"
+          onClick={async () => {
+            setLoading("marine");
+            setMarineTrafficResult('');
+            const result = await marineTrafficAPI();
+            setLoading('');
+            setMarineTrafficResult(result);
+          }}
+          disabled={loading === "marine"}
+        >
+          {loading === "marine" ? 'Yükleniyor...' : 'Çalıştır'}
+        </Button>
+        {marineTrafficResult && (
+          <pre className="bg-black/30 text-xs rounded p-2 overflow-auto text-gray-100 whitespace-pre-wrap max-h-48">
+            {marineTrafficResult}
+          </pre>
+        )}
+      </div>
+      {/* Scan Web Headers API */}
+      <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col space-y-2">
+        <h2 className="font-bold text-lg text-white mb-2">Scan Web Headers API</h2>
+        <p className="text-gray-300 text-sm mb-2">
+          Belirli alan adı için başlıkları çeker (şu an www.google.com ile örnek gösterim).
+        </p>
+        <Button
+          variant="outline"
+          className="mb-2 text-white border-white/30"
+          onClick={async () => {
+            setLoading("headers");
+            setWebHeadersResult('');
+            const result = await scanWebHeadersAPI();
+            setLoading('');
+            setWebHeadersResult(result);
+          }}
+          disabled={loading === "headers"}
+        >
+          {loading === "headers" ? 'Yükleniyor...' : 'Çalıştır'}
+        </Button>
+        {webHeadersResult && (
+          <pre className="bg-black/30 text-xs rounded p-2 overflow-auto text-gray-100 whitespace-pre-wrap max-h-48">
+            {webHeadersResult}
+          </pre>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Index = () => {
   const [activeLayer, setActiveLayer] = useState('flights');
   const [mapCenter, setMapCenter] = useState([35.2433, 38.9637]); // Türkiye merkezi
@@ -133,6 +275,11 @@ const Index = () => {
         <div className="w-80 bg-black/40 backdrop-blur border-l border-white/10 p-4 overflow-y-auto">
           <NewsPanel />
         </div>
+      </div>
+
+      {/* ApiTestPanels alanı */}
+      <div className="max-w-7xl mx-auto px-2">
+        <ApiTestPanels />
       </div>
     </div>
   );
